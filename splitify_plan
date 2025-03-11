@@ -1,0 +1,460 @@
+# Implementation Plan for Splitify
+
+## Project Setup and Configuration
+- [x] Step 1: Set up environment variables and database connection
+  - **Task**: Configure the necessary environment variables for database, auth, storage, and third-party services. Set up the database connection with Supabase.
+  - **Files**:
+    - `.env.example`: Update with all required environment variables
+    - `.env.local`: Add environment variables (to be created by user)
+    - `db/db.ts`: Ensure database connection is properly configured
+  - **User Instructions**: 
+    - Create a new PostgreSQL database in Supabase
+    - Copy values from `.env.example` to a new `.env.local` file
+    - Set `DATABASE_URL` to your Supabase connection string
+    - Set up a storage bucket named `receipts` in Supabase for receipt images
+
+- [x] Step 2: Set up authentication with Clerk
+  - **Task**: Configure Clerk authentication for the application.
+  - **Files**:
+    - `.env.local`: Add Clerk environment variables
+    - `middleware.ts`: Update to protect appropriate routes
+    - `app/layout.tsx`: Ensure ClerkProvider wraps the application
+  - **User Instructions**: 
+    - Create a Clerk application
+    - Configure sign-in/sign-up options in Clerk dashboard
+    - Add Clerk API keys to `.env.local`
+
+- [x] Step 3: Set up Stripe for subscription management
+  - **Task**: Configure Stripe integration for premium subscriptions.
+  - **Files**:
+    - `.env.local`: Add Stripe environment variables
+    - `lib/stripe.ts`: Ensure Stripe client is properly configured
+  - **User Instructions**: 
+    - Create a Stripe account
+    - Set up two products: Monthly ($10/month) and Yearly ($100/year) subscription plans
+    - Add Stripe API keys to `.env.local`
+    - Create webhook endpoint in Stripe dashboard pointing to `/api/stripe/webhooks`
+
+## Database Schema Implementation
+- [x] Step 4: Implement core user profile schema
+  - **Task**: Create database schema for user profiles linked to Clerk authentication.
+  - **Files**:
+    - `db/schema/profiles-schema.ts`: Define profile schema with membership information
+    - `db/schema/index.ts`: Export profile schema
+    - `db/db.ts`: Update schema import
+  - **User Instructions**: None
+
+- [x] Step 5: Implement event and participant schemas
+  - **Task**: Create database schemas for events and participants.
+  - **Files**:
+    - `db/schema/events-schema.ts`: Define event schema
+    - `db/schema/participants-schema.ts`: Define participant schema with roles
+    - `db/schema/index.ts`: Export new schemas
+    - `db/db.ts`: Update schema imports
+  - **User Instructions**: None
+
+- [x] Step 6: Implement expense-related schemas
+  - **Task**: Create database schemas for expenses, expense items, and allocations.
+  - **Files**:
+    - `db/schema/expenses-schema.ts`: Define expense schema
+    - `db/schema/expense-items-schema.ts`: Define expense items schema
+    - `db/schema/expense-allocations-schema.ts`: Define expense allocations schema
+    - `db/schema/index.ts`: Export new schemas
+    - `db/db.ts`: Update schema imports
+  - **User Instructions**: None
+
+- [x] Step 7: Implement receipt and rideshare schemas
+  - **Task**: Create database schemas for receipts and rideshare information.
+  - **Files**:
+    - `db/schema/receipts-schema.ts`: Define receipt schema
+    - `db/schema/rideshares-schema.ts`: Define rideshare schema
+    - `db/schema/index.ts`: Export new schemas
+    - `db/db.ts`: Update schema imports
+  - **User Instructions**: None
+
+- [x] Step 8: Implement settlement schema
+  - **Task**: Create database schema for settlements and payment tracking.
+  - **Files**:
+    - `db/schema/settlements-schema.ts`: Define settlement schema with generic payment tracking fields (paymentMethod, paymentReference, paymentStatus, paymentConfirmedAt, proofImageUrl)
+    - `db/schema/index.ts`: Export settlement schema
+    - `db/db.ts`: Update schema imports
+  - **User Instructions**: None
+
+- [x] Step 9: Set up Supabase storage for receipts and payment proofs
+  - **Task**: Configure Supabase storage for receipt images, payment proof images, and implement security policies.
+  - **Files**:
+    - `actions/storage/receipts-storage-actions.ts`: Create storage actions for receipts
+    - `actions/storage/payment-proofs-storage-actions.ts`: Create storage actions for payment proofs
+  - **User Instructions**: 
+    - Set up two storage buckets in Supabase named `receipts` and `payment_proofs`
+    - Run the following SQL in Supabase SQL Editor to set up RLS policies:
+    ```sql
+    -- Create policy to allow users to access only their own event receipts
+    CREATE POLICY "Users can access receipts from their events"
+    ON storage.objects FOR ALL
+    USING (
+      EXISTS (
+        SELECT 1 FROM participants
+        JOIN expenses ON participants.event_id = expenses.event_id
+        JOIN receipts ON expenses.id = receipts.expense_id
+        WHERE 
+          participants.user_id = auth.uid() AND
+          storage.foldername(name)[1] = 'receipts'
+      )
+    );
+
+    -- Create policy to allow users to access payment proofs for their events
+    CREATE POLICY "Users can access payment proofs from their events"
+    ON storage.objects FOR ALL
+    USING (
+      EXISTS (
+        SELECT 1 FROM participants
+        JOIN settlements ON participants.event_id = settlements.event_id
+        WHERE 
+          participants.user_id = auth.uid() AND
+          storage.foldername(name)[1] = 'payment_proofs'
+      )
+    );
+    ```
+
+## Server Actions Implementation
+- [x] Step 10: Implement profile management actions
+  - **Task**: Create server actions for user profile management.
+  - **Files**:
+    - `actions/db/profiles-actions.ts`: Implement CRUD operations for profiles
+    - `types/profile-types.ts`: Define profile-related types
+    - `types/index.ts`: Export profile types
+  - **User Instructions**: None
+
+- [x] Step 11: Implement event management actions
+  - **Task**: Create server actions for event management.
+  - **Files**:
+    - `actions/db/events-actions.ts`: Implement CRUD operations for events
+    - `types/event-types.ts`: Define event-related types
+    - `types/index.ts`: Export event types
+  - **User Instructions**: None
+
+- [x] Step 12: Implement participant management actions
+  - **Task**: Create server actions for participant management.
+  - **Files**:
+    - `actions/db/participants-actions.ts`: Implement CRUD operations for participants
+    - `types/participant-types.ts`: Define participant-related types
+    - `types/index.ts`: Export participant types
+  - **User Instructions**: None
+
+- [x] Step 13: Implement expense management actions
+  - **Task**: Create server actions for expense management.
+  - **Files**:
+    - `actions/db/expenses-actions.ts`: Implement CRUD operations for expenses
+    - `actions/db/expense-items-actions.ts`: Implement CRUD operations for expense items
+    - `actions/db/expense-allocations-actions.ts`: Implement CRUD operations for expense allocations
+    - `types/expense-types.ts`: Define expense-related types
+    - `types/index.ts`: Export expense types
+  - **User Instructions**: None
+
+- [x] Step 14: Implement receipt management actions
+  - **Task**: Create server actions for receipt management.
+  - **Files**:
+    - `actions/db/receipts-actions.ts`: Implement CRUD operations for receipts
+    - `actions/ocr-actions.ts`: Implement OCR processing for receipt images
+    - `types/receipt-types.ts`: Define receipt-related types
+    - `types/index.ts`: Export receipt types
+  - **User Instructions**: 
+    - Sign up for an OCR service (like Google Cloud Vision, Amazon Textract, or similar)
+    - Add API key to `.env.local` as `OCR_API_KEY`
+
+- [x] Step 15: Implement rideshare integration actions
+  - **Task**: Create server actions for rideshare integration.
+  - **Files**:
+    - `actions/db/rideshares-actions.ts`: Implement CRUD operations for rideshares
+    - `actions/uber-actions.ts`: Implement Uber API integration
+    - `types/rideshare-types.ts`: Define rideshare-related types
+    - `types/index.ts`: Export rideshare types
+  - **User Instructions**: 
+    - Create developer account for Uber API
+    - Configure OAuth credentials
+    - Add API keys to `.env.local`
+
+- [x] Step 16: Implement settlement actions
+  - **Task**: Create server actions for settlements and payment tracking.
+  - **Files**:
+    - `actions/db/settlements-actions.ts`: Implement CRUD operations for settlements
+    - `lib/settlement.ts`: Implement settlement optimization algorithm
+    - `types/settlement-types.ts`: Define settlement-related types
+    - `types/index.ts`: Export settlement types
+  - **User Instructions**: None
+
+- [x] Step 17: Implement Stripe subscription actions
+  - **Task**: Create server actions for Stripe subscription management.
+  - **Files**:
+    - `actions/stripe-actions.ts`: Implement Stripe payment and subscription actions
+    - `lib/subscription.ts`: Add utility functions for checking subscription status
+    - `app/api/stripe/webhooks/route.ts`: Implement webhook handler for Stripe events
+  - **User Instructions**: None
+
+## UI Components and Pages
+- [x] Step 18: Implement shared UI components
+  - **Task**: Create shared UI components used throughout the application.
+  - **Files**:
+    - `components/dashboard/event-card.tsx`: Create event card component
+    - `components/dashboard/participant-picker.tsx`: Create participant selection component
+    - `components/dashboard/expense-list.tsx`: Create expense listing component
+    - `components/sidebar/sidebar.tsx`: Create sidebar navigation component
+    - `components/utilities/feature-guard.tsx`: Create premium feature access guard component
+  - **User Instructions**: None
+
+- [x] Step 19: Implement marketing pages
+  - **Task**: Create public marketing pages for the application, emphasizing payment flexibility and manual tracking.
+  - **Files**:
+    - `app/(marketing)/page.tsx`: Update homepage
+    - `app/(marketing)/features/page.tsx`: Create features page with emphasis on flexible payment options
+    - `app/(marketing)/pricing/page.tsx`: Create pricing page
+    - `app/(marketing)/about/page.tsx`: Create about page
+    - `app/(marketing)/layout.tsx`: Update marketing layout
+    - `components/landing/hero.tsx`: Create hero section highlighting payment flexibility
+    - `components/landing/pricing-table.tsx`: Create pricing table component
+    - `components/landing/payment-methods.tsx`: Create component showcasing supported payment methods
+  - **User Instructions**: None
+
+- [x] Step 20: Implement authentication pages
+  - **Task**: Create authentication-related pages using Clerk.
+  - **Files**:
+    - `app/(auth)/login/[[...login]]/page.tsx`: Update login page
+    - `app/(auth)/signup/[[...signup]]/page.tsx`: Update signup page
+    - `app/(auth)/layout.tsx`: Update auth layout
+  - **User Instructions**: None
+
+- [x] Step 21: Implement dashboard layout and homepage
+  - **Task**: Create dashboard layout and homepage for authenticated users.
+  - **Files**:
+    - `app/(dashboard)/layout.tsx`: Create dashboard layout
+    - `app/(dashboard)/page.tsx`: Create dashboard homepage
+    - `app/(dashboard)/_components/dashboard-header.tsx`: Create dashboard header
+    - `app/(dashboard)/_components/event-list.tsx`: Create event listing component
+    - `components/dashboard/sidebar-nav.tsx`: Create sidebar navigation
+  - **User Instructions**: None
+
+- [x] Step 22: Implement user profile and settings pages
+  - **Task**: Create pages for user profile management and settings.
+  - **Files**:
+    - `app/(dashboard)/profile/page.tsx`: Create profile page
+    - `app/(dashboard)/profile/_components/profile-form.tsx`: Create profile form
+    - `app/(dashboard)/settings/page.tsx`: Create settings page
+    - `app/(dashboard)/settings/_components/subscription-management.tsx`: Create subscription management component
+  - **User Instructions**: None
+
+## Event Management Implementation
+- [x] Step 23: Implement event creation and editing
+  - **Task**: Create pages and components for event creation and editing.
+  - **Files**:
+    - `app/(dashboard)/events/new/page.tsx`: Create event creation page
+    - `app/(dashboard)/events/[eventId]/edit/page.tsx`: Create event editing page
+    - `app/(dashboard)/events/_components/event-form.tsx`: Create event form component
+  - **User Instructions**: None
+
+- [x] Step 24: Implement event details page
+  - **Task**: Create event details page showing all information about an event.
+  - **Files**:
+    - `app/(dashboard)/events/[eventId]/page.tsx`: Create event details page
+    - `app/(dashboard)/events/[eventId]/_components/event-header.tsx`: Create event header component
+    - `app/(dashboard)/events/[eventId]/_components/event-summary.tsx`: Create event summary component
+  - **User Instructions**: None
+
+- [x] Step 25: Implement participant management
+  - **Task**: Create components for managing event participants.
+  - **Files**:
+    - `app/(dashboard)/events/[eventId]/participants/page.tsx`: Create participants page
+    - `app/(dashboard)/events/[eventId]/participants/_components/participant-form.tsx`: Create participant form
+    - `app/(dashboard)/events/[eventId]/participants/_components/participant-list.tsx`: Create participant list component
+    - `app/(dashboard)/events/[eventId]/participants/_components/invite-form.tsx`: Create invitation form
+  - **User Instructions**: None
+
+## Expense Management Implementation
+- [x] Step 26: Implement basic expense management
+  - **Task**: Create components for basic expense creation and listing.
+  - **Files**:
+    - `app/(dashboard)/events/[eventId]/expenses/page.tsx`: Create expenses listing page
+    - `app/(dashboard)/events/[eventId]/expenses/new/page.tsx`: Create expense creation page
+    - `app/(dashboard)/events/[eventId]/expenses/[expenseId]/edit/page.tsx`: Create expense editing page
+    - `app/(dashboard)/events/[eventId]/expenses/_components/expense-form.tsx`: Create expense form component
+  - **User Instructions**: None
+
+- [x] Step 27: Implement expense details view
+  - **Task**: Create the expense details view showing all information about an expense.
+  - **Files**:
+    - `app/(dashboard)/events/[eventId]/expenses/[expenseId]/page.tsx`: Create expense details page
+    - `app/(dashboard)/events/[eventId]/expenses/[expenseId]/_components/expense-header.tsx`: Create expense header
+    - `app/(dashboard)/events/[eventId]/expenses/[expenseId]/_components/expense-details.tsx`: Create expense details component
+  - **User Instructions**: None
+
+- [x] Step 28: Implement basic expense splitting
+  - **Task**: Create components for basic expense splitting functionality.
+  - **Files**:
+    - `app/(dashboard)/events/[eventId]/expenses/[expenseId]/split/page.tsx`: Create expense splitting page
+    - `app/(dashboard)/events/[eventId]/expenses/[expenseId]/split/_components/split-form.tsx`: Create split form
+    - `app/(dashboard)/events/[eventId]/expenses/[expenseId]/split/_components/split-summary.tsx`: Create split summary component
+    - `components/dashboard/split-editor.tsx`: Create split editor component
+  - **User Instructions**: None
+
+- [x] Step 29: Implement receipt scanning and OCR
+  - **Task**: Implement receipt scanning and OCR processing.
+  - **Files**:
+    - `app/(dashboard)/events/[eventId]/expenses/new/receipt/page.tsx`: Create receipt scanning page
+    - `app/(dashboard)/events/[eventId]/expenses/new/receipt/_components/receipt-upload.tsx`: Create receipt upload component
+    - `app/(dashboard)/events/[eventId]/expenses/new/receipt/_components/ocr-preview.tsx`: Create OCR preview component
+    - `components/dashboard/receipt-scanner.tsx`: Create receipt scanner component
+    - `components/dashboard/receipt-viewer.tsx`: Create receipt viewer component
+  - **User Instructions**: None
+
+- [x] Step 30: Implement advanced expense splitting
+  - **Task**: Implement advanced expense splitting methods (custom amounts, percentages).
+  - **Files**:
+    - `app/(dashboard)/events/[eventId]/expenses/[expenseId]/split/_components/custom-split.tsx`: Create custom split component
+    - `app/(dashboard)/events/[eventId]/expenses/[expenseId]/split/_components/percentage-split.tsx`: Create percentage split component
+    - `lib/hooks/use-split-calculation.ts`: Create hook for split calculations
+  - **User Instructions**: None
+
+- [x] Step 31: Implement rideshare expense integration
+  - **Task**: Implement integration with Uber for automatic expense creation.
+  - **Files**:
+    - `app/(dashboard)/events/[eventId]/expenses/new/rideshare/page.tsx`: Create rideshare import page
+    - `app/(dashboard)/events/[eventId]/expenses/new/rideshare/_components/rideshare-connect.tsx`: Create rideshare connection component
+    - `app/(dashboard)/events/[eventId]/expenses/new/rideshare/_components/ride-list.tsx`: Create ride listing component
+    - `components/dashboard/rideshare-importer.tsx`: Create rideshare importer component
+  - **User Instructions**: None
+
+## Settlement and Payment Implementation
+- [x] Step 32: Implement balance calculation and visualization
+  - **Task**: Implement balance calculation and visualization for event participants.
+  - **Files**:
+    - `app/(dashboard)/events/[eventId]/balances/page.tsx`: Create balances page
+    - `app/(dashboard)/events/[eventId]/balances/_components/balance-summary.tsx`: Create balance summary component
+    - `app/(dashboard)/events/[eventId]/balances/_components/balance-chart.tsx`: Create balance visualization component
+    - `lib/hooks/use-balance-calculation.ts`: Create hook for balance calculations
+  - **User Instructions**: None
+
+- [x] Step 33: Implement settlement optimization
+  - **Task**: Implement the settlement optimization algorithm to minimize transactions.
+  - **Files**:
+    - `lib/settlement.ts`: Implement settlement optimization algorithm
+    - `app/(dashboard)/events/[eventId]/settlements/page.tsx`: Create settlements page
+    - `app/(dashboard)/events/[eventId]/settlements/_components/settlement-plan.tsx`: Create settlement plan component
+    - `app/(dashboard)/events/[eventId]/settlements/_components/settlement-graph.tsx`: Create settlement visualization component
+  - **User Instructions**: None
+
+- [ ] Step 34: Implement payment tracking functionality
+  - **Task**: Implement comprehensive manual payment tracking, verification, and proof management.
+  - **Files**:
+    - `app/(dashboard)/events/[eventId]/settlements/_components/payment-request.tsx`: Create payment request component with shareable links
+    - `app/(dashboard)/events/[eventId]/settlements/_components/payment-status.tsx`: Create payment status tracker component
+    - `app/(dashboard)/events/[eventId]/settlements/_components/payment-confirmation.tsx`: Create payment confirmation component
+    - `app/(dashboard)/events/[eventId]/settlements/_components/payment-methods-guide.tsx`: Create guide for various payment methods
+    - `app/(dashboard)/events/[eventId]/settlements/_components/payment-proof-upload.tsx`: Create component for uploading payment proof
+    - `app/(dashboard)/events/[eventId]/settlements/_components/payment-verification.tsx`: Create component for recipients to verify payments
+    - `app/(dashboard)/events/[eventId]/settlements/_components/payment-dispute.tsx`: Create component for handling payment disputes
+    - `lib/payment-links.ts`: Helper functions to generate payment information and deep links to payment apps
+    - `lib/payment-notifications.ts`: Helper functions for payment notification management
+    - `components/ui/payment-status-badge.tsx`: Visual indicators of payment status
+  - **User Instructions**: None
+
+## Premium Features and Subscription
+- [ ] Step 35: Implement feature access control with revised premium payment features
+  - **Task**: Implement feature access control based on subscription status, with adjusted payment-related premium features.
+  - **Files**:
+    - `lib/subscription.ts`: Implement functions to check feature access
+    - `components/ui/premium-feature.tsx`: Create premium feature wrapper component
+    - `components/ui/premium-upgrade.tsx`: Create premium upgrade prompt component
+    - `lib/premium-features.ts`: Define premium features including enhanced payment tracking
+    - `components/dashboard/premium-payment-features.tsx`: Create components for premium payment features
+  - **Premium Payment Features**:
+    - Bulk payment request generation
+    - Advanced payment proof management
+    - Payment reminder automation
+    - Payment history analytics
+    - PDF settlement report generation
+  - **User Instructions**: None
+
+- [ ] Step 36: Implement subscription management
+  - **Task**: Implement subscription management with Stripe.
+  - **Files**:
+    - `app/(dashboard)/settings/subscription/page.tsx`: Create subscription management page
+    - `app/(dashboard)/settings/subscription/_components/subscription-status.tsx`: Create subscription status component
+    - `app/(dashboard)/settings/subscription/_components/payment-method.tsx`: Create payment method component
+    - `app/(dashboard)/settings/subscription/_components/billing-history.tsx`: Create billing history component
+  - **User Instructions**: None
+
+## Smart Suggestions and User Experience
+- [ ] Step 37: Implement smart suggestions
+  - **Task**: Implement smart suggestions system for quick participant and expense selection.
+  - **Files**:
+    - `lib/suggestions.ts`: Implement suggestion algorithm
+    - `components/dashboard/participant-suggestions.tsx`: Create participant suggestions component
+    - `components/dashboard/expense-suggestions.tsx`: Create expense suggestions component
+    - `lib/hooks/use-suggestions.ts`: Create hook for suggestion management
+  - **User Instructions**: None
+
+- [ ] Step 38: Implement user activity history and payment notifications
+  - **Task**: Implement user activity tracking, history, and payment notification system.
+  - **Files**:
+    - `app/(dashboard)/activity/page.tsx`: Create activity history page
+    - `app/(dashboard)/activity/_components/activity-list.tsx`: Create activity list component
+    - `app/(dashboard)/activity/_components/activity-filters.tsx`: Create activity filter component
+    - `app/(dashboard)/activity/_components/payment-notifications.tsx`: Create payment notification component
+    - `db/schema/activity-schema.ts`: Create activity logging schema with payment event types
+    - `db/schema/notification-schema.ts`: Create notification schema for payment alerts
+    - `db/schema/index.ts`: Export activity and notification schemas
+    - `db/db.ts`: Update schema imports
+    - `actions/db/activity-actions.ts`: Implement activity logging actions
+    - `actions/db/notification-actions.ts`: Implement notification actions for payment events
+    - `lib/hooks/use-notifications.ts`: Create hook for managing notifications
+  - **User Instructions**: None
+
+- [ ] Step 39: Add animations and transitions
+  - **Task**: Add animations and transitions to enhance user experience.
+  - **Files**:
+    - `components/ui/transitions.tsx`: Create transition components
+    - `app/(dashboard)/events/[eventId]/_components/animated-summary.tsx`: Add animations to summary
+    - `app/(dashboard)/events/[eventId]/expenses/_components/expense-transitions.tsx`: Add expense list animations
+    - `lib/hooks/use-animate-list.ts`: Create hook for list animations
+  - **User Instructions**: None
+
+## Testing and Final Polish
+- [ ] Step 40: Implement error handling and edge cases
+  - **Task**: Add comprehensive error handling and manage edge cases throughout the application.
+  - **Files**:
+    - `components/ui/error-boundary.tsx`: Create error boundary component
+    - `components/ui/error-display.tsx`: Create error display component
+    - `lib/error-handling.ts`: Create error handling utilities
+    - `app/error.tsx`: Create global error page
+    - `app/not-found.tsx`: Create not found page
+  - **User Instructions**: None
+
+- [ ] Step 41: Add mobile responsiveness improvements
+  - **Task**: Ensure the application is fully responsive on mobile devices.
+  - **Files**:
+    - `components/ui/mobile-menu.tsx`: Create mobile navigation menu
+    - `components/ui/responsive-dialog.tsx`: Create responsive dialog component
+    - `app/(dashboard)/layout.tsx`: Update for mobile responsiveness
+    - `lib/hooks/use-mobile.ts`: Create hook for mobile detection
+  - **User Instructions**: None
+
+- [ ] Step 42: Implement onboarding flow
+  - **Task**: Create an onboarding flow for new users.
+  - **Files**:
+    - `app/(dashboard)/onboarding/page.tsx`: Create onboarding page
+    - `app/(dashboard)/onboarding/_components/onboarding-steps.tsx`: Create onboarding steps component
+    - `app/(dashboard)/onboarding/_components/welcome-message.tsx`: Create welcome message component
+    - `app/(dashboard)/onboarding/_components/feature-tour.tsx`: Create feature tour component
+  - **User Instructions**: None
+
+- [ ] Step 43: Final deployment setup
+  - **Task**: Prepare the application for production deployment.
+  - **Files**:
+    - `.env.production`: Set up production environment variables template
+    - `next.config.js`: Update Next.js configuration for production
+    - `middleware.ts`: Ensure all security measures are in place
+  - **User Instructions**: 
+    - Create a Vercel account if you don't have one
+    - Set up a new project in Vercel linked to your GitHub repository
+    - Configure environment variables in Vercel based on your `.env.local`
+    - Deploy the application
