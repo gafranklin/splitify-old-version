@@ -6,7 +6,10 @@ import { Card, CardContent } from "@/components/ui/card"
 interface SettlementGraphProps {
   participants: SelectParticipant[]
   settlements: any[]
-  balances: any[]
+  balances: {
+    participantId: string
+    balance: string
+  }[]
 }
 
 export default function SettlementGraph({

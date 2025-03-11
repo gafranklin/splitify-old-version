@@ -79,6 +79,23 @@ async function SettlementDataLoader({ eventId }: SettlementDataLoaderProps) {
   // Calculate balances
   const balances = calculateBalances(expenses, participants, settlements)
 
+  // Log balance structure for debugging
+  console.log("Balances type:", typeof balances)
+  console.log("Balances structure:", JSON.stringify(balances, null, 2))
+
+  // Transform balances from Record<string, string> to array format
+  const balancesArray = Object.entries(balances).map(
+    ([participantId, balance]) => ({
+      participantId,
+      balance
+    })
+  )
+
+  console.log(
+    "Transformed balances array:",
+    JSON.stringify(balancesArray, null, 2)
+  )
+
   return (
     <div className="space-y-10">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -89,7 +106,7 @@ async function SettlementDataLoader({ eventId }: SettlementDataLoaderProps) {
                 eventId={eventId}
                 participants={participants}
                 settlements={settlements}
-                balances={balances}
+                balances={balancesArray}
               />
             </Suspense>
           </div>
@@ -101,7 +118,7 @@ async function SettlementDataLoader({ eventId }: SettlementDataLoaderProps) {
               <SettlementGraph
                 participants={participants}
                 settlements={settlements}
-                balances={balances}
+                balances={balancesArray}
               />
             </Suspense>
           </div>

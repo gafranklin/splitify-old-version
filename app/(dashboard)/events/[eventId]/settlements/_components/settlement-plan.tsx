@@ -9,7 +9,10 @@ interface SettlementPlanProps {
   eventId: string
   participants: SelectParticipant[]
   settlements: any[]
-  balances: any[]
+  balances: {
+    participantId: string
+    balance: string
+  }[]
 }
 
 export default function SettlementPlan({
