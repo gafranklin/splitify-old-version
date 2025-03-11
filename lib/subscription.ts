@@ -2,6 +2,9 @@
 Subscription utility functions.
 */
 
+// Import server-only to prevent client components from importing database functions
+import "server-only"
+
 import { db } from "@/db/db"
 import { profilesTable } from "@/db/schema"
 import { eq } from "drizzle-orm"

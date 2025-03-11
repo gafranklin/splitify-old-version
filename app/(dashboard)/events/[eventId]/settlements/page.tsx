@@ -3,10 +3,10 @@
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
 import { auth } from "@clerk/nextjs/server"
-import { getEventAction } from "@/actions/db/events-actions"
+import { getEventWithDetailsAction } from "@/actions/db/events-actions"
 import { getEventSettlementsAction } from "@/actions/db/settlements-actions"
 import { getEventParticipantsAction } from "@/actions/db/participants-actions"
-import { getEventExpensesWithDetailsAction } from "@/actions/db/expenses-actions"
+import { getEventExpensesAction } from "@/actions/db/expenses-actions"
 import { calculateBalances } from "@/lib/settlement"
 import SettlementPlan from "./_components/settlement-plan"
 import SettlementPlanSkeleton from "./_components/settlement-plan-skeleton"
@@ -49,7 +49,7 @@ async function SettlementDataLoader({ eventId }: SettlementDataLoaderProps) {
   if (!userId) return null
 
   // Get event details
-  const eventResponse = await getEventAction(eventId)
+  const eventResponse = await getEventWithDetailsAction(eventId)
   if (!eventResponse.isSuccess || !eventResponse.data) {
     notFound()
   }
@@ -63,7 +63,7 @@ async function SettlementDataLoader({ eventId }: SettlementDataLoaderProps) {
   const participants = participantsResponse.data
 
   // Get event expenses with allocations
-  const expensesResponse = await getEventExpensesWithDetailsAction(eventId)
+  const expensesResponse = await getEventExpensesAction(eventId)
   if (!expensesResponse.isSuccess || !expensesResponse.data) {
     return <div>Failed to load expenses</div>
   }

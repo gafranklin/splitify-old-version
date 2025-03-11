@@ -1,8 +1,9 @@
 /*
 Premium features definition and descriptions.
+This file is safe to import in client components as it contains only static data.
 */
 
-import { PREMIUM_FEATURES } from "./subscription"
+import { PREMIUM_FEATURES } from "./subscription-client"
 
 // Feature categories
 export const FEATURE_CATEGORIES = {

@@ -30,7 +30,7 @@ import {
   Clock,
   AlertCircle
 } from "lucide-react"
-import { PREMIUM_FEATURES } from "@/lib/subscription"
+import { PREMIUM_FEATURES } from "@/lib/subscription-client"
 import { getPaymentFeatures } from "@/lib/premium-features"
 
 interface SubscriptionInfo {

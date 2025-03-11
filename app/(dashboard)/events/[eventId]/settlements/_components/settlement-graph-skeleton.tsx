@@ -5,11 +5,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 export default function SettlementGraphSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2">
         <Skeleton className="h-7 w-36" />
+        <Skeleton className="h-4 w-full max-w-[250px]" />
       </div>
 
-      <div className="bg-muted/30 flex h-[300px] items-center justify-center rounded-lg">
+      <div className="flex h-[300px] w-full items-center justify-center rounded-md border">
         <Skeleton className="size-[250px] rounded-full" />
       </div>
 
