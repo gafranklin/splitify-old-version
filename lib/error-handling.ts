@@ -5,12 +5,12 @@ import { ActionState } from "@/types"
 /**
  * Standard error types for consistent error handling
  */
-export type ErrorType = 
-  | "validation" 
-  | "authentication" 
-  | "authorization" 
-  | "not_found" 
-  | "server_error" 
+export type ErrorType =
+  | "validation"
+  | "authentication"
+  | "authorization"
+  | "not_found"
+  | "server_error"
   | "network_error"
   | "payment_error"
   | "subscription_error"
@@ -53,7 +53,7 @@ export function logError(
 ): void {
   const appError = error as AppError
   const errorType = appError.type || "unknown"
-  
+
   // In production, would integrate with logging service
   console.error({
     message: error.message,
@@ -69,7 +69,7 @@ export function logError(
  */
 export function formatErrorMessage(error: Error | AppError): string {
   const appError = error as AppError
-  
+
   // Return user-friendly error messages based on error type
   switch (appError.type) {
     case "validation":
@@ -104,17 +104,18 @@ export function formatErrorMessage(error: Error | AppError): string {
  * Handle errors in server actions and return formatted ActionState
  */
 export function handleActionError<T>(
-  error: unknown, 
+  error: unknown,
   context?: Record<string, any>
 ): ActionState<T> {
   // Convert unknown error to AppError
-  const appError = error instanceof Error 
-    ? (error as AppError) 
-    : createAppError("An unknown error occurred", "unknown")
-  
+  const appError =
+    error instanceof Error
+      ? (error as AppError)
+      : createAppError("An unknown error occurred", "unknown")
+
   // Log the error
   logError(appError, context)
-  
+
   // Return formatted ActionState
   return {
     isSuccess: false,
@@ -134,14 +135,16 @@ export function isErrorType(error: unknown, type: ErrorType): boolean {
 /**
  * Extract validation errors for form handling
  */
-export function getValidationErrors(error: unknown): Record<string, string> | null {
+export function getValidationErrors(
+  error: unknown
+): Record<string, string> | null {
   if (!(error instanceof Error)) return null
   const appError = error as AppError
-  
+
   if (appError.type === "validation" && appError.details) {
     return appError.details as Record<string, string>
   }
-  
+
   return null
 }
 
@@ -149,14 +152,14 @@ export function getValidationErrors(error: unknown): Record<string, string> | nu
  * Create an HTTP error response for API routes
  */
 export function createErrorResponse(
-  error: Error | AppError, 
+  error: Error | AppError,
   status: number = 500
 ): Response {
   const appError = error as AppError
-  
+
   // Log the error
   logError(appError)
-  
+
   // Return structured error response
   return new Response(
     JSON.stringify({
@@ -166,8 +169,8 @@ export function createErrorResponse(
     {
       status,
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json"
       }
     }
   )
-} 
+}

@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { 
-  Menu, 
-  X, 
-  Home, 
-  Calendar, 
+import {
+  Menu,
+  X,
+  Home,
+  Calendar,
   BarChart,
   Settings,
   CreditCard,
@@ -48,14 +48,30 @@ export function MobileMenu({ className = "" }: MobileMenuProps) {
   }
 
   const menuItems: MenuItem[] = [
-    { name: "Dashboard", href: "/", icon: <Home className="h-5 w-5" /> },
-    { name: "Events", href: "/events", icon: <Calendar className="h-5 w-5" /> },
-    { name: "Expenses", href: "/expenses", icon: <BarChart className="h-5 w-5" /> },
-    { name: "Payments", href: "/settlements", icon: <CreditCard className="h-5 w-5" /> },
-    { name: "Participants", href: "/participants", icon: <Users className="h-5 w-5" /> },
-    { name: "Activity", href: "/activity", icon: <Bell className="h-5 w-5" /> },
-    { name: "Profile", href: "/profile", icon: <User className="h-5 w-5" /> },
-    { name: "Settings", href: "/settings", icon: <Settings className="h-5 w-5" /> },
+    { name: "Dashboard", href: "/", icon: <Home className="size-5" /> },
+    { name: "Events", href: "/events", icon: <Calendar className="size-5" /> },
+    {
+      name: "Expenses",
+      href: "/expenses",
+      icon: <BarChart className="size-5" />
+    },
+    {
+      name: "Payments",
+      href: "/settlements",
+      icon: <CreditCard className="size-5" />
+    },
+    {
+      name: "Participants",
+      href: "/participants",
+      icon: <Users className="size-5" />
+    },
+    { name: "Activity", href: "/activity", icon: <Bell className="size-5" /> },
+    { name: "Profile", href: "/profile", icon: <User className="size-5" /> },
+    {
+      name: "Settings",
+      href: "/settings",
+      icon: <Settings className="size-5" />
+    }
   ]
 
   return (
@@ -63,37 +79,40 @@ export function MobileMenu({ className = "" }: MobileMenuProps) {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon" className="lg:hidden">
-            <Menu className="h-6 w-6" />
+            <Menu className="size-6" />
             <span className="sr-only">Toggle menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-72">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-4 border-b">
+        <SheetContent side="left" className="w-72 p-0">
+          <div className="flex h-full flex-col">
+            <div className="flex items-center justify-between border-b p-4">
               <h2 className="text-lg font-semibold">Splitify</h2>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setOpen(false)}
               >
-                <X className="h-5 w-5" />
+                <X className="size-5" />
                 <span className="sr-only">Close menu</span>
               </Button>
             </div>
 
             <nav className="flex-1 overflow-y-auto p-2">
               <ul className="space-y-1">
-                {menuItems.map((item) => {
-                  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-                  
+                {menuItems.map(item => {
+                  const isActive =
+                    pathname === item.href ||
+                    pathname.startsWith(`${item.href}/`)
+
                   return (
                     <li key={item.name}>
                       <Link
                         href={item.href}
                         className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors
-                          ${isActive 
-                            ? "bg-primary text-primary-foreground" 
-                            : "hover:bg-muted"
+                          ${
+                            isActive
+                              ? "bg-primary text-primary-foreground"
+                              : "hover:bg-muted"
                           }`}
                         onClick={() => setOpen(false)}
                       >
@@ -107,12 +126,12 @@ export function MobileMenu({ className = "" }: MobileMenuProps) {
             </nav>
 
             <div className="border-t p-4">
-              <Button 
-                variant="outline" 
-                className="w-full flex items-center gap-2 justify-start"
+              <Button
+                variant="outline"
+                className="flex w-full items-center justify-start gap-2"
                 onClick={() => signOut()}
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="size-4" />
                 Sign Out
               </Button>
             </div>
@@ -121,4 +140,4 @@ export function MobileMenu({ className = "" }: MobileMenuProps) {
       </Sheet>
     </div>
   )
-} 
+}

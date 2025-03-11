@@ -34,7 +34,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log the error to our error handling service
     logError(error, { componentStack: errorInfo.componentStack })
-    
+
     // Call the onError callback if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo)
@@ -43,10 +43,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   componentDidUpdate(prevProps: ErrorBoundaryProps) {
     // If resetKey changes, reset the error state
-    if (
-      this.state.hasError &&
-      prevProps.resetKey !== this.props.resetKey
-    ) {
+    if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
       this.setState({ hasError: false, error: null })
     }
   }
@@ -57,9 +54,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       if (this.props.fallback) {
         return this.props.fallback
       }
-      
+
       return (
-        <ErrorDisplay 
+        <ErrorDisplay
           error={this.state.error}
           reset={() => this.setState({ hasError: false, error: null })}
         />
@@ -70,4 +67,4 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
-export default ErrorBoundary 
+export default ErrorBoundary

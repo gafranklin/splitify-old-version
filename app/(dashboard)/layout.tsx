@@ -26,9 +26,9 @@ export default async function DashboardLayout({
   const profile = profileResponse.isSuccess ? profileResponse.data : null
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden lg:flex-row">
+    <div className="flex h-screen flex-col overflow-hidden lg:flex-row">
       {/* Sidebar - Hidden on mobile */}
-      <div className="hidden lg:block lg:flex-shrink-0">
+      <div className="hidden lg:block lg:shrink-0">
         <Sidebar defaultCollapsed={false} />
       </div>
 
@@ -36,7 +36,7 @@ export default async function DashboardLayout({
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Mobile header */}
         <DashboardHeader profile={profile} />
-        
+
         {/* Main scrollable content */}
         <main className="flex-1 overflow-y-auto px-4 pb-4 pt-2 md:px-6 lg:px-8">
           {children}

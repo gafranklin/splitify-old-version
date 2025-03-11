@@ -11,7 +11,7 @@ export const breakpoints = {
   md: 768,
   lg: 1024,
   xl: 1280,
-  "2xl": 1536,
+  "2xl": 1536
 }
 
 type Breakpoint = keyof typeof breakpoints
@@ -74,8 +74,7 @@ export function useMobile() {
 
   // Common breakpoint checks
   const isMobile = isBelowBreakpoint("md")
-  const isTablet = 
-    isAboveBreakpoint("md") && isBelowBreakpoint("lg")
+  const isTablet = isAboveBreakpoint("md") && isBelowBreakpoint("lg")
   const isDesktop = isAboveBreakpoint("lg")
 
   // Orientation detection
@@ -96,7 +95,7 @@ export function useMobile() {
     isTouchDevice,
     isMobileUserAgent,
     isBelowBreakpoint,
-    isAboveBreakpoint,
+    isAboveBreakpoint
   }
 }
 
@@ -116,14 +115,17 @@ export function getResponsiveClass(
   }
 
   const windowWidth = window.innerWidth
-  
+
   // Find the largest breakpoint that's smaller than the window width
   const activeBreakpoint = Object.entries(breakpoints)
-    .sort((a, b) => breakpoints[b[0] as Breakpoint] - breakpoints[a[0] as Breakpoint])
+    .sort(
+      (a, b) =>
+        breakpoints[b[0] as Breakpoint] - breakpoints[a[0] as Breakpoint]
+    )
     .find(([_, value]) => windowWidth >= value)?.[0] as Breakpoint | undefined
-  
+
   // Return the class for the active breakpoint, or default if none
   return activeBreakpoint && breakpointClasses[activeBreakpoint]
     ? breakpointClasses[activeBreakpoint]
     : defaultClass
-} 
+}

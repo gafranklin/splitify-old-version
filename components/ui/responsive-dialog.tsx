@@ -1,8 +1,24 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose
+} from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import { useMobile } from "@/lib/hooks/use-mobile"
@@ -31,7 +47,7 @@ export function ResponsiveDialog({
   contentClassName = "",
   withCloseButton = false,
   open,
-  onOpenChange,
+  onOpenChange
 }: ResponsiveDialogProps) {
   const { isMobile } = useMobile()
   const [internalOpen, setInternalOpen] = useState(false)
@@ -63,26 +79,26 @@ export function ResponsiveDialog({
             <div className="absolute right-4 top-4">
               <SheetClose asChild>
                 <Button variant="ghost" size="icon">
-                  <X className="h-4 w-4" />
+                  <X className="size-4" />
                   <span className="sr-only">Close</span>
                 </Button>
               </SheetClose>
             </div>
           )}
-          
+
           {title && (
             <SheetHeader>
               <SheetTitle>{title}</SheetTitle>
-              {description && <p className="text-sm text-muted-foreground">{description}</p>}
+              {description && (
+                <p className="text-muted-foreground text-sm">{description}</p>
+              )}
             </SheetHeader>
           )}
-          
+
           <div className="py-4">{children}</div>
-          
+
           {footer && (
-            <SheetFooter className="sm:justify-end">
-              {footer}
-            </SheetFooter>
+            <SheetFooter className="sm:justify-end">{footer}</SheetFooter>
           )}
         </SheetContent>
       </Sheet>
@@ -92,33 +108,35 @@ export function ResponsiveDialog({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className={`max-h-[90vh] overflow-y-auto ${contentClassName}`}>
+      <DialogContent
+        className={`max-h-[90vh] overflow-y-auto ${contentClassName}`}
+      >
         {withCloseButton && (
           <div className="absolute right-4 top-4">
             <DialogClose asChild>
               <Button variant="ghost" size="icon">
-                <X className="h-4 w-4" />
+                <X className="size-4" />
                 <span className="sr-only">Close</span>
               </Button>
             </DialogClose>
           </div>
         )}
-        
+
         {title && (
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
-            {description && <p className="text-sm text-muted-foreground">{description}</p>}
+            {description && (
+              <p className="text-muted-foreground text-sm">{description}</p>
+            )}
           </DialogHeader>
         )}
-        
+
         <div className="py-4">{children}</div>
-        
+
         {footer && (
-          <DialogFooter className="sm:justify-end">
-            {footer}
-          </DialogFooter>
+          <DialogFooter className="sm:justify-end">{footer}</DialogFooter>
         )}
       </DialogContent>
     </Dialog>
   )
-} 
+}

@@ -25,13 +25,16 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   showTryAgain = true,
   showHome = true,
   title = "Something went wrong",
-  className = "",
+  className = ""
 }) => {
-  const message = error ? formatErrorMessage(error) : "An unknown error occurred."
+  const message = error
+    ? formatErrorMessage(error)
+    : "An unknown error occurred."
 
   // Get error type for styling (default to "unknown")
-  const errorType = error && (error as AppError).type ? (error as AppError).type : "unknown"
-  
+  const errorType =
+    error && (error as AppError).type ? (error as AppError).type : "unknown"
+
   // Determine severity-based styling
   const getSeverityColor = () => {
     switch (errorType) {
@@ -52,39 +55,39 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   return (
     <div className={`rounded-lg border p-6 ${getSeverityColor()} ${className}`}>
       <div className="flex flex-col items-center text-center">
-        <AlertTriangle className="h-12 w-12 mb-4" />
-        
-        <h3 className="text-lg font-semibold mb-2">{title}</h3>
-        
+        <AlertTriangle className="mb-4 size-12" />
+
+        <h3 className="mb-2 text-lg font-semibold">{title}</h3>
+
         <p className="mb-6">{message}</p>
-        
-        <div className="flex flex-wrap gap-3 justify-center">
+
+        <div className="flex flex-wrap justify-center gap-3">
           {showReset && reset && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={reset}
               className="flex items-center gap-2"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="size-4" />
               Try Again
             </Button>
           )}
-          
+
           {showTryAgain && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => window.location.reload()}
               className="flex items-center gap-2"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="size-4" />
               Reload Page
             </Button>
           )}
-          
+
           {showHome && (
-            <Button 
-              variant="outline" 
-              onClick={() => window.location.href = '/'}
+            <Button
+              variant="outline"
+              onClick={() => (window.location.href = "/")}
             >
               Go to Home
             </Button>
@@ -95,4 +98,4 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   )
 }
 
-export default ErrorDisplay 
+export default ErrorDisplay
