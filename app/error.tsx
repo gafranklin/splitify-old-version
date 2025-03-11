@@ -19,7 +19,18 @@ interface ErrorPageProps {
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   // Log the error
   useEffect(() => {
-    logError(error, { source: "global-error-page", digest: error.digest })
+    const logErrorAsync = async () => {
+      try {
+        await logError(error, {
+          source: "global-error-page",
+          digest: error.digest
+        })
+      } catch (e) {
+        console.error("Failed to log error:", e)
+      }
+    }
+
+    logErrorAsync()
   }, [error])
 
   return (

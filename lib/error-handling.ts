@@ -31,11 +31,11 @@ export interface AppError extends Error {
 /**
  * Create a formatted error with type information
  */
-export function createAppError(
+export async function createAppError(
   message: string,
   type: ErrorType = "unknown",
   details?: Record<string, any>
-): AppError {
+): Promise<AppError> {
   const error = new Error(message) as AppError
   error.type = type
   if (details) {
@@ -47,10 +47,10 @@ export function createAppError(
 /**
  * Log error with appropriate level and context
  */
-export function logError(
+export async function logError(
   error: Error | AppError,
   context?: Record<string, any>
-): void {
+): Promise<void> {
   const appError = error as AppError
   const errorType = appError.type || "unknown"
 
@@ -67,7 +67,9 @@ export function logError(
 /**
  * Format error for user display
  */
-export function formatErrorMessage(error: Error | AppError): string {
+export async function formatErrorMessage(
+  error: Error | AppError
+): Promise<string> {
   const appError = error as AppError
 
   // Return user-friendly error messages based on error type
@@ -103,30 +105,33 @@ export function formatErrorMessage(error: Error | AppError): string {
 /**
  * Handle errors in server actions and return formatted ActionState
  */
-export function handleActionError<T>(
+export async function handleActionError<T>(
   error: unknown,
   context?: Record<string, any>
-): ActionState<T> {
+): Promise<ActionState<T>> {
   // Convert unknown error to AppError
   const appError =
     error instanceof Error
       ? (error as AppError)
-      : createAppError("An unknown error occurred", "unknown")
+      : await createAppError("An unknown error occurred", "unknown")
 
   // Log the error
-  logError(appError, context)
+  await logError(appError, context)
 
   // Return formatted ActionState
   return {
     isSuccess: false,
-    message: formatErrorMessage(appError)
+    message: await formatErrorMessage(appError)
   }
 }
 
 /**
  * Check if an error is of a specific type
  */
-export function isErrorType(error: unknown, type: ErrorType): boolean {
+export async function isErrorType(
+  error: unknown,
+  type: ErrorType
+): Promise<boolean> {
   if (!(error instanceof Error)) return false
   const appError = error as AppError
   return appError.type === type
@@ -135,9 +140,9 @@ export function isErrorType(error: unknown, type: ErrorType): boolean {
 /**
  * Extract validation errors for form handling
  */
-export function getValidationErrors(
+export async function getValidationErrors(
   error: unknown
-): Record<string, string> | null {
+): Promise<Record<string, string> | null> {
   if (!(error instanceof Error)) return null
   const appError = error as AppError
 
@@ -151,19 +156,19 @@ export function getValidationErrors(
 /**
  * Create an HTTP error response for API routes
  */
-export function createErrorResponse(
+export async function createErrorResponse(
   error: Error | AppError,
   status: number = 500
-): Response {
+): Promise<Response> {
   const appError = error as AppError
 
   // Log the error
-  logError(appError)
+  await logError(appError)
 
   // Return structured error response
   return new Response(
     JSON.stringify({
-      error: formatErrorMessage(appError),
+      error: await formatErrorMessage(appError),
       type: appError.type || "unknown"
     }),
     {

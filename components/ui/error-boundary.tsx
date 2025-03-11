@@ -33,11 +33,24 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log the error to our error handling service
-    logError(error, { componentStack: errorInfo.componentStack })
+    // Using void to handle the promise without awaiting it since componentDidCatch is synchronous
+    void this.logErrorAsync(error, errorInfo)
+  }
 
-    // Call the onError callback if provided
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo)
+  private async logErrorAsync(
+    error: Error,
+    errorInfo: ErrorInfo
+  ): Promise<void> {
+    try {
+      // Log the error asynchronously
+      await logError(error, { componentStack: errorInfo.componentStack })
+
+      // Call the onError callback if provided
+      if (this.props.onError) {
+        this.props.onError(error, errorInfo)
+      }
+    } catch (loggingError) {
+      console.error("Failed to log error:", loggingError)
     }
   }
 

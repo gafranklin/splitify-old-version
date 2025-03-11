@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { formatErrorMessage, AppError } from "@/lib/error-handling"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, RefreshCw } from "lucide-react"
@@ -27,9 +27,25 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   title = "Something went wrong",
   className = ""
 }) => {
-  const message = error
-    ? formatErrorMessage(error)
-    : "An unknown error occurred."
+  const [errorMessage, setErrorMessage] = useState<string>(
+    "An unknown error occurred."
+  )
+
+  useEffect(() => {
+    if (error) {
+      // Update the error message asynchronously
+      const fetchErrorMessage = async () => {
+        try {
+          const message = await formatErrorMessage(error)
+          setErrorMessage(message)
+        } catch (e) {
+          setErrorMessage("An unknown error occurred.")
+        }
+      }
+
+      fetchErrorMessage()
+    }
+  }, [error])
 
   // Get error type for styling (default to "unknown")
   const errorType =
@@ -59,7 +75,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 
         <h3 className="mb-2 text-lg font-semibold">{title}</h3>
 
-        <p className="mb-6">{message}</p>
+        <p className="mb-6">{errorMessage}</p>
 
         <div className="flex flex-wrap justify-center gap-3">
           {showReset && reset && (
