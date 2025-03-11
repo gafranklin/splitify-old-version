@@ -16,7 +16,9 @@ import {
   receiptsTable,
   ridesharesTable,
   settlementsTable,
-  connectionsTable
+  connectionsTable,
+  activityTable,
+  notificationTable
 } from "@/db/schema"
 import { config } from "dotenv"
 import { drizzle } from "drizzle-orm/postgres-js"
@@ -43,7 +45,9 @@ const schema = {
   receipts: receiptsTable,
   rideshares: ridesharesTable,
   settlements: settlementsTable,
-  connections: connectionsTable
+  connections: connectionsTable,
+  activities: activityTable,
+  notifications: notificationTable
 }
 
 // Only initialize database connection on the server
