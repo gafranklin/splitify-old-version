@@ -342,7 +342,7 @@
     - `app/(dashboard)/events/[eventId]/settlements/_components/settlement-graph.tsx`: Create settlement visualization component
   - **User Instructions**: None
 
-- [ ] Step 34: Implement payment tracking functionality
+- [x] Step 34: Implement payment tracking functionality
   - **Task**: Implement comprehensive manual payment tracking, verification, and proof management.
   - **Files**:
     - `app/(dashboard)/events/[eventId]/settlements/_components/payment-request.tsx`: Create payment request component with shareable links
@@ -358,7 +358,7 @@
   - **User Instructions**: None
 
 ## Premium Features and Subscription
-- [ ] Step 35: Implement feature access control with revised premium payment features
+- [x] Step 35: Implement feature access control with revised premium payment features
   - **Task**: Implement feature access control based on subscription status, with adjusted payment-related premium features.
   - **Files**:
     - `lib/subscription.ts`: Implement functions to check feature access
@@ -374,7 +374,7 @@
     - PDF settlement report generation
   - **User Instructions**: None
 
-- [ ] Step 36: Implement subscription management
+- [x] Step 36: Implement subscription management
   - **Task**: Implement subscription management with Stripe.
   - **Files**:
     - `app/(dashboard)/settings/subscription/page.tsx`: Create subscription management page

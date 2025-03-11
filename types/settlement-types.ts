@@ -40,6 +40,7 @@ export interface SettlementUpdate {
   notes?: string | null
   completedAt?: Date | null
   requestedAt?: Date | null
+  proofImageUrl?: string | null
 }
 
 export interface SettlementOptimizationResult {

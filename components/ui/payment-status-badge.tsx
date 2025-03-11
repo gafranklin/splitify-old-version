@@ -1,79 +1,49 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
+import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
-import { CheckCircle, Clock, AlertCircle, Ban } from "lucide-react"
 
-export type PaymentStatus =
-  | "pending"
-  | "completed"
-  | "confirmed"
-  | "disputed"
-  | "cancelled"
-
-const statusConfig: Record<
-  PaymentStatus,
+const paymentStatusVariants = cva(
+  "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset",
   {
-    label: string
-    variant: "default" | "secondary" | "destructive" | "outline"
-    icon: React.ReactNode
-    className?: string
+    variants: {
+      status: {
+        pending: "bg-yellow-50 text-yellow-700 ring-yellow-600/20",
+        requested: "bg-blue-50 text-blue-700 ring-blue-600/20",
+        completed: "bg-green-50 text-green-700 ring-green-600/20",
+        cancelled: "bg-red-50 text-red-700 ring-red-600/20"
+      }
+    },
+    defaultVariants: {
+      status: "pending"
+    }
   }
-> = {
-  pending: {
-    label: "Pending",
-    variant: "outline",
-    icon: <Clock className="mr-1 size-3" />,
-    className: "border-yellow-500 text-yellow-500"
-  },
-  completed: {
-    label: "Completed",
-    variant: "outline",
-    icon: <CheckCircle className="mr-1 size-3" />,
-    className: "border-blue-500 text-blue-500"
-  },
-  confirmed: {
-    label: "Confirmed",
-    variant: "outline",
-    icon: <CheckCircle className="mr-1 size-3" />,
-    className: "border-green-500 text-green-500"
-  },
-  disputed: {
-    label: "Disputed",
-    variant: "outline",
-    icon: <AlertCircle className="mr-1 size-3" />,
-    className: "border-red-500 text-red-500"
-  },
-  cancelled: {
-    label: "Cancelled",
-    variant: "outline",
-    icon: <Ban className="mr-1 size-3" />,
-    className: "border-gray-500 text-gray-500"
-  }
+)
+
+const statusText = {
+  pending: "Pending",
+  requested: "Requested",
+  completed: "Completed",
+  cancelled: "Cancelled"
 }
 
-interface PaymentStatusBadgeProps {
-  status: PaymentStatus
-  className?: string
+export interface PaymentStatusBadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof paymentStatusVariants> {
+  status: "pending" | "requested" | "completed" | "cancelled"
 }
 
-export default function PaymentStatusBadge({
+export function PaymentStatusBadge({
+  className,
   status,
-  className
+  ...props
 }: PaymentStatusBadgeProps) {
-  const config = statusConfig[status]
-
   return (
-    <Badge
-      variant={config.variant}
-      className={cn(
-        "flex items-center font-normal",
-        config.className,
-        className
-      )}
+    <div
+      className={cn(paymentStatusVariants({ status }), className)}
+      {...props}
     >
-      {config.icon}
-      {config.label}
-    </Badge>
+      {statusText[status]}
+    </div>
   )
 }
