@@ -103,7 +103,7 @@
       )
     );
 
-    -- Create policy to allow users to access payment proofs for their events
+    -- Create policy to allow users to access payment proofs from their events
     CREATE POLICY "Users can access payment proofs from their events"
     ON storage.objects FOR ALL
     USING (
@@ -384,7 +384,7 @@
   - **User Instructions**: None
 
 ## Smart Suggestions and User Experience
-- [ ] Step 37: Implement smart suggestions
+- [x] Step 37: Implement smart suggestions
   - **Task**: Implement smart suggestions system for quick participant and expense selection.
   - **Files**:
     - `lib/suggestions.ts`: Implement suggestion algorithm
@@ -393,7 +393,7 @@
     - `lib/hooks/use-suggestions.ts`: Create hook for suggestion management
   - **User Instructions**: None
 
-- [ ] Step 38: Implement user activity history and payment notifications
+- [x] Step 38: Implement user activity history and payment notifications
   - **Task**: Implement user activity tracking, history, and payment notification system.
   - **Files**:
     - `app/(dashboard)/activity/page.tsx`: Create activity history page
@@ -409,17 +409,8 @@
     - `lib/hooks/use-notifications.ts`: Create hook for managing notifications
   - **User Instructions**: None
 
-- [ ] Step 39: Add animations and transitions
-  - **Task**: Add animations and transitions to enhance user experience.
-  - **Files**:
-    - `components/ui/transitions.tsx`: Create transition components
-    - `app/(dashboard)/events/[eventId]/_components/animated-summary.tsx`: Add animations to summary
-    - `app/(dashboard)/events/[eventId]/expenses/_components/expense-transitions.tsx`: Add expense list animations
-    - `lib/hooks/use-animate-list.ts`: Create hook for list animations
-  - **User Instructions**: None
-
 ## Testing and Final Polish
-- [ ] Step 40: Implement error handling and edge cases
+- [x] Step 40: Implement error handling and edge cases
   - **Task**: Add comprehensive error handling and manage edge cases throughout the application.
   - **Files**:
     - `components/ui/error-boundary.tsx`: Create error boundary component
@@ -429,7 +420,7 @@
     - `app/not-found.tsx`: Create not found page
   - **User Instructions**: None
 
-- [ ] Step 41: Add mobile responsiveness improvements
+- [x] Step 41: Add mobile responsiveness improvements
   - **Task**: Ensure the application is fully responsive on mobile devices.
   - **Files**:
     - `components/ui/mobile-menu.tsx`: Create mobile navigation menu
