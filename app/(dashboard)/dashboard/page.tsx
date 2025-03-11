@@ -9,14 +9,11 @@ import { EventSummary } from "@/types"
 import { SelectEvent } from "@/db/schema"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import DashboardHeader from "../_components/dashboard-header"
 import EventList from "../_components/event-list"
 
 export default async function DashboardPage() {
   return (
     <div className="flex flex-col">
-      <DashboardHeader />
-
       <div className="flex-1 space-y-6 p-6">
         <h2 className="text-3xl font-bold tracking-tight">
           Welcome to Splitify
