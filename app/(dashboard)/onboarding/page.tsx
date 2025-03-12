@@ -1,5 +1,3 @@
-"use server"
-
 import { Metadata } from "next"
 import OnboardingSteps from "./_components/onboarding-steps"
 import WelcomeMessage from "./_components/welcome-message"

@@ -22,9 +22,6 @@ const nextConfig = {
     ],
   },
   
-  // Production optimizations
-  swcMinify: true,
-  
   // Add security headers
   headers: async () => {
     return [
