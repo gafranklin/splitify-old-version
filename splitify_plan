@@ -429,7 +429,7 @@
     - `lib/hooks/use-mobile.ts`: Create hook for mobile detection
   - **User Instructions**: None
 
-- [ ] Step 42: Implement onboarding flow
+- [x] Step 42: Implement onboarding flow
   - **Task**: Create an onboarding flow for new users.
   - **Files**:
     - `app/(dashboard)/onboarding/page.tsx`: Create onboarding page
