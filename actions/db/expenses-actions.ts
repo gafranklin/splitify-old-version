@@ -20,7 +20,7 @@ import {
   ExpenseSummary,
   ExpenseInput
 } from "@/types"
-import { eq, and, count, desc, sql } from "drizzle-orm"
+import { eq, and, count, desc, sql, inArray } from "drizzle-orm"
 import { auth } from "@clerk/nextjs/server"
 
 // Create a new expense
@@ -416,5 +416,84 @@ export async function deleteExpenseAction(
   } catch (error) {
     console.error("Error deleting expense:", error)
     return { isSuccess: false, message: "Failed to delete expense" }
+  }
+}
+
+export async function getUserEventsExpensesAction(
+  userId: string
+): Promise<ActionState<ExpenseSummary[]>> {
+  try {
+    // Get all event IDs where the user is a participant
+    const userParticipations = await db.query.participants.findMany({
+      where: eq(participantsTable.userId, userId),
+      columns: {
+        eventId: true,
+        id: true
+      }
+    })
+    
+    const eventIds = userParticipations.map(p => p.eventId)
+    
+    if (eventIds.length === 0) {
+      return {
+        isSuccess: true,
+        message: "No events found for user",
+        data: []
+      }
+    }
+    
+    // Get all expenses for these events with related data
+    const expenses = await db
+      .select({
+        id: expensesTable.id,
+        title: expensesTable.title,
+        amount: expensesTable.amount,
+        date: expensesTable.date,
+        payerId: expensesTable.payerId,
+        payerName: participantsTable.displayName,
+        status: expensesTable.status,
+        eventId: expensesTable.eventId,
+        eventName: eventsTable.name,
+        itemCount: count(expenseItemsTable.id).as('itemCount')
+      })
+      .from(expensesTable)
+      .leftJoin(participantsTable, eq(expensesTable.payerId, participantsTable.id))
+      .leftJoin(eventsTable, eq(expensesTable.eventId, eventsTable.id))
+      .leftJoin(expenseItemsTable, eq(expensesTable.id, expenseItemsTable.expenseId))
+      .where(inArray(expensesTable.eventId, eventIds))
+      .groupBy(
+        expensesTable.id,
+        expensesTable.title,
+        expensesTable.amount,
+        expensesTable.date,
+        expensesTable.payerId,
+        participantsTable.displayName,
+        expensesTable.status,
+        expensesTable.eventId,
+        eventsTable.name
+      )
+      .orderBy(desc(expensesTable.date))
+      .execute()
+
+    // Map to ExpenseSummary type
+    const expenseSummaries: ExpenseSummary[] = expenses.map(expense => ({
+      id: expense.id,
+      title: expense.title,
+      amount: Number(expense.amount),
+      date: expense.date,
+      payerId: expense.payerId,
+      payerName: expense.payerName || 'Unknown',
+      status: expense.status,
+      itemCount: Number(expense.itemCount || 0)
+    }))
+
+    return {
+      isSuccess: true,
+      message: "Expenses retrieved successfully",
+      data: expenseSummaries
+    }
+  } catch (error) {
+    console.error("Error getting user expenses:", error)
+    return { isSuccess: false, message: "Failed to get expenses" }
   }
 } 

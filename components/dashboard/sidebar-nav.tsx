@@ -61,25 +61,27 @@ export default function SidebarNav({
 
   return (
     <nav className={cn("flex flex-col gap-2 p-2", className)}>
-      {navItems.map(item => (
-        <Button
-          key={item.href}
-          asChild
-          variant={pathname === item.href ? "default" : "ghost"}
-          size={isCollapsed ? "icon" : "default"}
-          className={cn(
-            pathname === item.href
-              ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-              : "hover:bg-muted",
-            isCollapsed ? "justify-center" : "justify-start"
-          )}
-        >
-          <Link href={item.href}>
-            {item.icon}
-            {!isCollapsed && <span className="ml-2">{item.title}</span>}
-          </Link>
-        </Button>
-      ))}
+      {navItems.map(item => {
+        return (
+          <Button
+            key={item.href}
+            asChild
+            variant={pathname === item.href ? "default" : "ghost"}
+            size={isCollapsed ? "icon" : "default"}
+            className={cn(
+              pathname === item.href
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                : "hover:bg-muted",
+              isCollapsed ? "justify-center" : "justify-start"
+            )}
+          >
+            <Link href={item.href}>
+              {item.icon}
+              {!isCollapsed && <span className="ml-2">{item.title}</span>}
+            </Link>
+          </Button>
+        )
+      })}
     </nav>
   )
 }

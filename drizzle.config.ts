@@ -2,14 +2,20 @@
 Configures Drizzle for the app.
 */
 
-import { config } from "dotenv"
-import { defineConfig } from "drizzle-kit"
+import { defineConfig } from "drizzle-kit";
+import "dotenv/config";
 
-config({ path: ".env.local" })
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is required");
+}
 
 export default defineConfig({
-  schema: "./db/schema/index.ts",
+  schema: "./db/schema/*schema.ts",
   out: "./db/migrations",
   dialect: "postgresql",
-  dbCredentials: { url: process.env.DATABASE_URL! }
-})
+  dbCredentials: { 
+    url: process.env.DATABASE_URL!,
+  },
+  verbose: true,
+  strict: true,
+});

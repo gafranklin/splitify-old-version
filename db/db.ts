@@ -24,7 +24,7 @@ import { config } from "dotenv"
 import { drizzle } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 
-// Add debugging log to trace initialization
+// Add more detailed debugging log to trace initialization
 console.log(
   "DEBUG: Initializing database connection. Environment:",
   typeof window === "undefined" ? "Server" : "Client",
@@ -32,7 +32,24 @@ console.log(
   new Error().stack?.split("\n").slice(0, 3)
 )
 
+// Load environment variables
+console.log("Loading environment variables...")
 config({ path: ".env.local" })
+
+// Log database connection details (without exposing credentials)
+const dbUrl = process.env.DATABASE_URL
+console.log("Database URL present:", !!dbUrl)
+if (dbUrl) {
+  try {
+    const sanitizedUrl = new URL(dbUrl)
+    sanitizedUrl.password = "REDACTED"
+    console.log("Database connection:", sanitizedUrl.toString())
+    console.log("Database host:", sanitizedUrl.host)
+    console.log("Database pathname:", sanitizedUrl.pathname)
+  } catch (error) {
+    console.error("Error parsing database URL:", error)
+  }
+}
 
 const schema = {
   profiles: profilesTable,
@@ -50,7 +67,26 @@ const schema = {
   notifications: notificationTable
 }
 
-// Only initialize database connection on the server
-const client = postgres(process.env.DATABASE_URL!)
+console.log("Schema tables configured:", Object.keys(schema).join(", "))
 
-export const db = drizzle(client, { schema })
+// Initialize database connection
+let client
+let db
+
+// Only initialize database connection on the server
+try {
+  console.log("Creating Postgres client...")
+  client = postgres(process.env.DATABASE_URL!)
+  console.log("Postgres client created successfully")
+
+  console.log("Initializing Drizzle ORM with schema...")
+  db = drizzle(client, { schema })
+  console.log("Drizzle ORM initialized successfully")
+} catch (error) {
+  console.error("CRITICAL: Failed to initialize database connection:", error)
+  // Re-throw to prevent app from starting with broken DB connection
+  throw error
+}
+
+// Export the database connection
+export { db }
