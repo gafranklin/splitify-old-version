@@ -15,6 +15,33 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
+  console.log("[CALENDAR DEBUG] Props:", {
+    month: props.month,
+    defaultMonth: props.defaultMonth,
+    fromDate: props.fromDate,
+    toDate: props.toDate,
+    mode: props.mode
+  })
+
+  // Add additional logging for React Day Picker internal state
+  React.useEffect(() => {
+    if (props.month) {
+      console.log("[CALENDAR DEBUG] Current month:", {
+        month: props.month,
+        firstDayOfMonth: new Date(
+          props.month.getFullYear(),
+          props.month.getMonth(),
+          1
+        ),
+        firstDayOfWeek: new Date(
+          props.month.getFullYear(),
+          props.month.getMonth(),
+          1
+        ).getDay()
+      })
+    }
+  }, [props.month])
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -32,10 +59,10 @@ function Calendar({
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
         table: "w-full border-collapse space-y-1",
-        head_row: "flex",
+        head_row: "flex justify-between w-full",
         head_cell:
-          "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-        row: "flex w-full mt-2",
+          "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
+        row: "flex w-full justify-between mt-2",
         cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }),
@@ -60,6 +87,24 @@ function Calendar({
           ) : (
             <ChevronRight className="size-4" />
           )
+        }
+      }}
+      weekStartsOn={0} // Explicitly set Sunday as the first day of the week
+      onMonthChange={month => {
+        console.log("[CALENDAR DEBUG] Month changed:", {
+          month,
+          firstDayOfMonth: new Date(month.getFullYear(), month.getMonth(), 1),
+          firstDayOfWeek: new Date(
+            month.getFullYear(),
+            month.getMonth(),
+            1
+          ).getDay()
+        })
+      }}
+      formatters={{
+        formatWeekdayName: weekday => {
+          // Format to just the first two letters to ensure consistent width
+          return ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][weekday.getDay()]
         }
       }}
       {...props}
