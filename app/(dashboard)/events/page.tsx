@@ -44,7 +44,14 @@ async function EventsFetcher() {
     )
   }
 
-  const { data: events, isSuccess } = await getUserEventsAction(userId)
+  console.log(
+    `DEBUG: Getting events for user ${userId}, calling getUserEventsAction without parameters`
+  )
+  const { data: events, isSuccess } = await getUserEventsAction()
+
+  console.log(
+    `DEBUG: getUserEventsAction result - success: ${isSuccess}, events count: ${events?.length || 0}`
+  )
 
   if (!isSuccess) {
     return (

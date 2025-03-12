@@ -8,27 +8,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { formatCurrency } from "@/lib/utils"
+import { EventSummary } from "@/types"
 
-// Using a more specific type that includes the additional properties we need
-interface EventWithDetails {
-  id: string
-  name: string
-  description: string | null
-  location: string | null
-  startDate: Date | string | null
-  endDate: Date | string | null
-  isActive: boolean
-  currency: string | null
-  createdAt: Date
-  updatedAt: Date
-  creatorId: string
-  status?: string
-  participantCount?: number
-  totalExpenses?: number
-}
-
+// Using EventSummary instead of EventWithDetails to match what getUserEventsAction returns
 interface EventListProps {
-  events: EventWithDetails[]
+  events: EventSummary[]
 }
 
 export default function EventList({ events }: EventListProps) {
@@ -42,14 +26,16 @@ export default function EventList({ events }: EventListProps) {
                 <h3 className="font-semibold">{event.name}</h3>
                 <p className="text-muted-foreground text-sm">
                   <CalendarIcon className="mr-1 inline-block size-3" />
-                  {format(new Date(event.startDate || ""), "MMM d, yyyy")}
+                  {event.startDate
+                    ? format(new Date(event.startDate), "MMM d, yyyy")
+                    : "No start date"}
                   {event.endDate &&
                     ` - ${format(new Date(event.endDate), "MMM d, yyyy")}`}
                 </p>
               </div>
-              {event.status && (
+              {event.userRole && (
                 <Badge variant="outline" className="capitalize">
-                  {event.status}
+                  {event.userRole}
                 </Badge>
               )}
             </div>
@@ -62,16 +48,6 @@ export default function EventList({ events }: EventListProps) {
                   {event.participantCount || 0} participants
                 </p>
               </div>
-              {event.totalExpenses !== undefined && (
-                <div>
-                  <p className="text-sm font-medium">
-                    {formatCurrency(
-                      event.totalExpenses,
-                      event.currency || "USD"
-                    )}
-                  </p>
-                </div>
-              )}
             </div>
           </CardContent>
           <CardFooter className="flex justify-between pt-2">
