@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation"
 import { auth } from "@clerk/nextjs/server"
+import { cookies } from "next/headers"
 
 import Sidebar from "@/components/sidebar/sidebar"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
@@ -10,10 +11,12 @@ import { ProfileWithPermissions } from "@/types"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
+  params: { path?: string[] }
 }
 
 export default async function DashboardLayout({
-  children
+  children,
+  params
 }: DashboardLayoutProps) {
   const { userId } = await auth()
 
@@ -24,6 +27,15 @@ export default async function DashboardLayout({
   // Get user profile
   const profileResponse = await getProfileByUserIdAction(userId)
   const profile = profileResponse.isSuccess ? profileResponse.data : null
+
+  // Skip the redirect for the onboarding route itself to prevent infinite loops
+  const currentPath = params.path?.[0] || ""
+  const isOnboardingRoute = currentPath === "onboarding"
+
+  // Redirect new users to onboarding, unless they're already there
+  if (!profile && !isOnboardingRoute) {
+    redirect("/onboarding")
+  }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden lg:flex-row">

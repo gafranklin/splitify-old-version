@@ -25,11 +25,15 @@ export default clerkMiddleware(async (auth, req) => {
   console.log(`[MIDDLEWARE] URL: ${req.url}`)
   console.log(`[MIDDLEWARE] Method: ${req.method}`)
   
+  // Create response with pathname header for server component route checking
+  const response = NextResponse.next()
+  response.headers.set("x-pathname", req.nextUrl.pathname)
+  
   // Add specific logging for /home path
   if (req.nextUrl.pathname === "/home") {
     console.log("[MIDDLEWARE] Processing /home path")
     console.log("[MIDDLEWARE] This should be accessible to unauthenticated users")
-    return NextResponse.next()
+    return response
   }
   
   // Specifically handle the /participants route that no longer exists
@@ -58,7 +62,7 @@ export default clerkMiddleware(async (auth, req) => {
     
     // If user is not authenticated, let them see the marketing page
     console.log("[MIDDLEWARE] Unauthenticated user at root path - showing marketing page")
-    return NextResponse.next()
+    return response
   }
 
   // If the user isn't signed in and the route is private, redirect to sign-in
@@ -70,11 +74,11 @@ export default clerkMiddleware(async (auth, req) => {
   // If the user is logged in and the route is protected, let them view.
   if (userId && isProtectedRoute(req)) {
     console.log("[MIDDLEWARE] Authenticated user accessing protected route - allowing access")
-    return NextResponse.next()
+    return response
   }
   
   console.log("[MIDDLEWARE] Default case - proceeding with request")
-  return NextResponse.next()
+  return response
 })
 
 export const config = {
