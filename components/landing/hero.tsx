@@ -13,6 +13,9 @@ import AnimatedGradientText from "../magicui/animated-gradient-text"
 import HeroVideoDialog from "../magicui/hero-video-dialog"
 
 export const HeroSection = () => {
+  console.log(
+    "[HERO_SECTION] Rendering hero section - Updated with Splitify branding"
+  )
   return (
     <div className="flex flex-col items-center justify-center px-8 pt-32 text-center">
       <motion.div
@@ -48,7 +51,7 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
           className="text-balance text-6xl font-bold"
         >
-          Receipt AI
+          Splitify
         </motion.div>
 
         <motion.div
@@ -57,7 +60,7 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
           className="max-w-xl text-balance text-xl"
         >
-          Transform receipts and invoices into organized data instantly with AI.
+          Split expenses with friends, your way
         </motion.div>
 
         <motion.div
@@ -65,7 +68,7 @@ export const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
         >
-          <Link href="https://github.com/mckaywrigley/o1-pro-template-system">
+          <Link href="/signup">
             <Button className="bg-blue-500 text-lg hover:bg-blue-600">
               <Rocket className="mr-2 size-5" />
               Get Started &rarr;
